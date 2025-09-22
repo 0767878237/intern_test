@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend-react
+      dockerfile: Dockerfile
+    container_name: react-app
+    ports:
+      - "3000:80" 
+    restart: always
+    networks:
+      - my_network
+
+  backend:
+    build:
+      context: ./backend-nodejs
+      dockerfile: Dockerfile
+    container_name: nodejs-server
+    ports:
+      - "5000:5000"
+    restart: always
+    env_file:
+      - ./.env
+    networks:
+      - my_network
+    depends_on:
+      - database
+
+  database:
+    image: mongo:4.4
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    restart: always
+    volumes:
+      - mongo_data:/data/db 
+    networks:
+      - my_network
+
+volumes:
+  mongo_data: {}
+
+networks:
+  my_network:
+    driver: bridge
